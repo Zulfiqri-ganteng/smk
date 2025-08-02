@@ -1,5 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/sewx2253/public_html/sewaambulanceindonesia24jam.site
-    - /bin/cp -R * $DEPLOYPATH
