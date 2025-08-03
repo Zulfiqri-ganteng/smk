@@ -10,7 +10,7 @@
                             <small class="text-muted"><?= date('d M Y', strtotime($p['tanggal'])); ?></small>
                         </div>
                         <p class="mb-1"><?= word_limiter($p['isi'], 30); ?></p>
-                        <small class="text-primary">Baca selengkapnya...</small>
+                        <!-- <small class="text-primary">Baca selengkapnya...</small> -->
                     </a>
                  <?php endforeach; else : ?>
                      <p class="text-center">Belum ada pengumuman.</p>

@@ -16,32 +16,63 @@
             </div>
         </div>
         <div class="card-body">
-            <?php if (!empty($soal)): $i = 1; foreach ($soal as $s): ?>
-                <div class="card mb-3">
-                    <div class="card-header d-flex justify-content-between">
-                        <strong>Soal No. <?= $i++; ?></strong>
-                        <div>
-                            <a href="<?= base_url('admin/ujian/edit_soal/' . $s['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="<?= base_url('admin/ujian/hapus_soal/' . $s['id'] . '/' . $ujian['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin?')">Hapus</a>
+            <?php if (!empty($soal)): $i = 1;
+                foreach ($soal as $s): ?>
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between">
+                            <strong>Soal No. <?= $i++; ?></strong>
+                            <div>
+                                <a href="<?= base_url('admin/ujian/edit_soal/' . $s['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="<?= base_url('admin/ujian/hapus_soal/' . $s['id'] . '/' . $ujian['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin?')">Hapus</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <?php if (!empty($s['gambar_soal'])): ?>
+                                    <div class="col-md-4">
+                                        <a href="<?= base_url('assets/images/soal/' . $s['gambar_soal']); ?>" class="glightbox">
+                                            <img src="<?= base_url('assets/images/soal/' . $s['gambar_soal']); ?>" class="img-fluid rounded" alt="Gambar Soal">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-8 p-3">
+                                        <!-- <p><?= $s['pertanyaan']; ?></p> -->
+                                        <ul class="list-group">
+                                            <li class="list-group-item" style="background-color: #d9500cff; color: #ffffff; font-weight: bold;"><?= $s['pertanyaan']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'A' ? 'active' : ''; ?>">A. <?= $s['opsi_a']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'B' ? 'active' : ''; ?>">B. <?= $s['opsi_b']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'C' ? 'active' : ''; ?>">C. <?= $s['opsi_c']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'D' ? 'active' : ''; ?>">D. <?= $s['opsi_d']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'E' ? 'active' : ''; ?>">E. <?= $s['opsi_e']; ?></li>
+                                        </ul>
+                                    </div>
+
+                                <?php else: ?>
+                                    <div class="col-md-12 p-3">
+
+                                        <ul class="list-group">
+                                            <li class="list-group-item" style="background-color: #d9500cff; color: #ffffff; font-weight: bold;"><?= $s['pertanyaan']; ?></li>
+
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'A' ? 'active' : ''; ?>">A. <?= $s['opsi_a']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'B' ? 'active' : ''; ?>">B. <?= $s['opsi_b']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'C' ? 'active' : ''; ?>">C. <?= $s['opsi_c']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'D' ? 'active' : ''; ?>">D. <?= $s['opsi_d']; ?></li>
+                                            <li class="list-group-item <?= $s['jawaban_benar'] == 'E' ? 'active' : ''; ?>">E. <?= $s['opsi_e']; ?></li>
+                                        </ul>
+                                    </div>
+                                <?php endif; ?>
+
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <p><?= $s['pertanyaan']; ?></p>
-                        <ul class="list-group">
-                            <li class="list-group-item <?= $s['jawaban_benar'] == 'A' ? 'active' : ''; ?>">A. <?= $s['opsi_a']; ?></li>
-                            <li class="list-group-item <?= $s['jawaban_benar'] == 'B' ? 'active' : ''; ?>">B. <?= $s['opsi_b']; ?></li>
-                            <li class="list-group-item <?= $s['jawaban_benar'] == 'C' ? 'active' : ''; ?>">C. <?= $s['opsi_c']; ?></li>
-                            <li class="list-group-item <?= $s['jawaban_benar'] == 'D' ? 'active' : ''; ?>">D. <?= $s['opsi_d']; ?></li>
-                            <li class="list-group-item <?= $s['jawaban_benar'] == 'E' ? 'active' : ''; ?>">E. <?= $s['opsi_e']; ?></li>
-                        </ul>
-                    </div>
-                </div>
-            <?php endforeach; else: ?>
+                <?php endforeach;
+            else: ?>
                 <p class="text-center">Belum ada soal untuk ujian ini.</p>
             <?php endif; ?>
         </div>
         <div class="card-footer">
-             <a href="<?= base_url('admin/ujian'); ?>" class="btn btn-secondary">Kembali ke Daftar Ujian</a>
+            <a href="<?= base_url('admin/ujian'); ?>" class="btn btn-secondary">Kembali ke Daftar Ujian</a>
         </div>
     </div>
 </div>
@@ -85,7 +116,7 @@
                     </div>
 
                     <div class="tab-pane fade" id="word" role="tabpanel" aria-labelledby="word-tab">
-                         <p class="text-muted small">Gunakan metode ini jika Anda sudah memiliki soal dalam format dokumen Word. Pastikan format penulisan di dalam file sudah sesuai.</p>
+                        <p class="text-muted small">Gunakan metode ini jika Anda sudah memiliki soal dalam format dokumen Word. Pastikan format penulisan di dalam file sudah sesuai.</p>
                         <form action="<?= base_url('admin/ujian/import_word/' . $ujian['id']); ?>" method="post" enctype="multipart/form-data">
                             <label class="font-weight-bold">Pilih File DOCX</label>
                             <input type="file" name="file_word" class="form-control" accept=".docx" required>
