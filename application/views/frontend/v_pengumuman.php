@@ -1,21 +1,24 @@
-<div class="container my-5">
-    <h2 class="text-center section-title"><?= $judul; ?></h2>
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="list-group">
-                 <?php if (!empty($pengumuman)) : foreach ($pengumuman as $p) : ?>
-                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start mb-3 shadow-sm">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1"><?= $p['judul']; ?></h5>
-                            <small class="text-muted"><?= date('d M Y', strtotime($p['tanggal'])); ?></small>
-                        </div>
-                        <p class="mb-1"><?= word_limiter($p['isi'], 30); ?></p>
-                        <!-- <small class="text-primary">Baca selengkapnya...</small> -->
-                    </a>
-                 <?php endforeach; else : ?>
-                     <p class="text-center">Belum ada pengumuman.</p>
-                 <?php endif; ?>
-            </div>
-        </div>
+<div class="page-title-section">
+    <div class="container">
+        <h1>Pengumuman Sekolah</h1>
     </div>
+</div>
+
+<div class="container py-5">
+    <?php if (!empty($pengumuman)): ?>
+        <?php foreach ($pengumuman as $p): ?>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title"><?= $p['judul']; ?></h4>
+                    <p class="card-subtitle mb-2 text-muted">
+                        <i class="fas fa-calendar-alt"></i> <?= date('d F Y', strtotime($p['tanggal'])); ?>
+                    </p>
+                    <hr>
+                    <p class="card-text"><?= nl2br($p['isi']); ?></p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p class="text-center text-muted">Belum ada pengumuman.</p>
+    <?php endif; ?>
 </div>

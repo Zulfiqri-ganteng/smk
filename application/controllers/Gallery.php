@@ -1,17 +1,15 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Gallery extends CI_Controller {
+class Gallery extends CI_Controller
+{
 
-    public function __construct() {
-        parent::__construct();
-        $this->load->model('M_Gallery'); // Pastikan model M_Gallery sudah dibuat
-    }
-
-    public function index() {
+    public function index()
+    {
+        $this->load->model('M_Gallery');
         $data['judul'] = 'Galeri Kegiatan';
-        $data['gallery'] = $this->M_Gallery->get_all_gallery();
-        
+        $data['daftar_foto'] = $this->M_Gallery->get_all_photos();
+
         $this->load->view('templates/header', $data);
         $this->load->view('frontend/v_gallery', $data);
         $this->load->view('templates/footer');

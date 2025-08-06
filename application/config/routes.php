@@ -24,3 +24,7 @@ $route['admin/siswa'] = 'admin/siswa';
 $route['siswa/dashboard'] = 'siswa/dashboard';
 $route['siswa/profile'] = 'siswa/profil';
 $route['guru'] = 'Guru/index';
+
+$route['siswa/ujian'] = 'siswa/ujian/index';
+$route['siswa/ujian/kerjakan/(:num)'] = 'siswa/ujian/kerjakan/$1';
+$route['siswa/ujian/hasil/(:num)'] = 'siswa/ujian/hasil/$1';

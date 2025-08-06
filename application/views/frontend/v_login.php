@@ -1,27 +1,24 @@
-<div class="container" style="min-height: 80vh; display: flex; align-items: center;">
-    <div class="row justify-content-center w-100">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header text-center" style="background-color: #0A2647; color: white;">
-                    <h3 class="my-4">LOGIN</h3>
-                </div>
-                <div class="card-body p-4">
-                    <?= $this->session->flashdata('message'); ?>
-                    <form action="<?= base_url('auth'); ?>" method="post">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
-                            <label for="username">Username</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                            <label for="password">Password</label>
-                        </div>
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
-                        </div>
-                    </form>
-                </div>
+<div class="login-page-container">
+    <div id="particles-js"></div>
+
+    <div class="login-card">
+        <img src="<?= base_url('assets/images/logo.png') ?>" alt="Logo" class="logo">
+        <h3 class="text-center mb-4 fw-bold">LOGIN AREA</h3>
+
+        <?= $this->session->flashdata('message'); ?>
+
+        <form action="<?= base_url('auth'); ?>" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan username Anda" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan password" required>
+            </div>
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-warning fw-bold">Login</button>
+            </div>
+        </form>
     </div>
 </div>

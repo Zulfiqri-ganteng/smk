@@ -56,7 +56,51 @@
             </div>
         </div>
     </section>
+    <section id="prestasi" class="prestasi-section py-5" style="background-color: #f8f9fa;">
+        <div class="container">
 
+            <div class="section-title text-center mb-5">
+                <h2>Siswa Berprestasi</h2>
+                <p>Inspirasi dari para siswa terbaik kami yang telah mengukir prestasi gemilang.</p>
+            </div>
+
+            <div class="row d-flex justify-content-center">
+
+                <?php if (!empty($siswa_berprestasi)): ?>
+                    <?php foreach ($siswa_berprestasi as $siswa): ?>
+
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="student-card">
+                                <img src="<?= base_url('assets/images/siswa/' . $siswa['foto']); ?>" class="student-card__image" alt="Foto <?= $siswa['nama_siswa']; ?>">
+
+                                <div class="student-card__overlay">
+                                    <h4 class="student-card__title"><?= $siswa['nama_siswa']; ?></h4>
+                                    <p class="student-card__subtitle"><?= $siswa['kelas']; ?></p>
+                                </div>
+
+                                <?php if ($siswa['juara'] > 0): ?>
+                                    <div class="student-card__badge">
+                                        <i class="fas fa-trophy"></i> Juara <?= $siswa['juara']; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center">
+                        <p class="text-muted fs-5 mt-4">Belum ada data siswa berprestasi untuk ditampilkan.</p>
+                    </div>
+                <?php endif; ?>
+
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="<?= base_url('siswa'); ?>" class="btn btn-outline-primary">Lihat Semua Siswa Berprestasi</a>
+            </div>
+
+        </div>
+    </section>
     <section class="py-5 section-bg">
         <div class="container">
             <h2 class="text-center section-title">Jurusan Unggulan</h2>
@@ -101,27 +145,45 @@
         </div>
     </section>
 
-    <section class="py-5">
+    <section id="pengumuman" class="pengumuman-section py-5">
         <div class="container">
-            <h2 class="text-center section-title">Pengumuman Terbaru</h2>
-            <div class="row">
-                <?php if (!empty($pengumuman_terbaru)) : foreach ($pengumuman_terbaru as $p) : ?>
-                        <div class="col-md-4">
-                            <div class="card mb-3 shadow-sm h-100">
+
+            <div class="section-title text-center mb-5">
+                <h2>Pengumuman Terbaru</h2>
+                <p>Informasi dan berita terkini seputar kegiatan sekolah.</p>
+            </div>
+
+            <div class="row d-flex align-items-stretch">
+
+                <?php if (!empty($pengumuman_terbaru)): ?>
+                    <?php foreach ($pengumuman_terbaru as $p): ?>
+
+                        <div class="col-lg-4 d-flex align-items-stretch mb-4">
+                            <div class="card announcement-card w-100">
                                 <div class="card-body">
-                                    <h5 class="card-title fw-bold" style="color: #0A2647;"><?= $p['judul']; ?></h5>
-                                    <p class="card-text text-muted small"><i class="fas fa-calendar-alt me-2"></i><?= date('d F Y', strtotime($p['tanggal'])); ?></p>
-                                    <p class="card-text"><?= word_limiter($p['isi'], 20); ?></p>
-                                </div>
-                                <div class="card-footer bg-transparent border-0">
-                                    <a href="<?= base_url('pengumuman'); ?>" class="btn btn-primary">Baca Selengkapnya</a>
+                                    <p class="card-date mb-2">
+                                        <i class="fas fa-calendar-alt"></i> <?= date('d F Y', strtotime($p['tanggal'])); ?>
+                                    </p>
+                                    <h5 class="card-title"><?= $p['judul']; ?></h5>
+                                    <p class="card-text text-muted">
+                                        <?= word_limiter($p['isi'], 20); // Tampilkan 20 kata pertama 
+                                        ?>
+                                    </p>
+                                    <a href="<?= base_url('pengumuman/detail/' . $p['id']); ?>" class="btn-read-more mt-auto align-self-start">
+                                        Baca Selengkapnya <i class="fas fa-arrow-right"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach;
-                else: ?>
-                    <p class="text-center text-muted">Belum ada pengumuman terbaru.</p>
+
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12 text-center">
+                        <p class="text-muted fs-5 mt-4">Belum ada pengumuman untuk ditampilkan.</p>
+                    </div>
                 <?php endif; ?>
+
             </div>
+
         </div>
     </section>

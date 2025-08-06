@@ -1,101 +1,94 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Gallery extends CI_Controller {
+class Gallery extends CI_Controller
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if ($this->session->userdata('level') != 'admin') {
             redirect('auth');
         }
         $this->load->model('M_Gallery');
         $this->load->library('form_validation');
-        // Library 'upload' akan di-load nanti saat dibutuhkan
+        $this->load->library('upload');
     }
 
-    public function index() {
-        $data['judul'] = 'Manajemen Gallery';
-        $data['gallery'] = $this->M_Gallery->get_all_gallery();
-        
+    // Fungsi canggih untuk mengambil ID video dari berbagai jenis URL YouTube
+    private function _get_youtube_id($url)
+    {
+        preg_match('%(?:youtube(?:-nocookie)?\\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\\.be/)([^"&?/ ]{11})%i', $url, $match);
+        return isset($match[1]) ? $match[1] : false;
+    }
+
+    public function index()
+    {
+        $data['judul'] = 'Manajemen Galeri';
+        $data['gallery'] = $this->M_Gallery->get_all_photos();
         $this->load->view('templates/header_admin', $data);
-        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/sidebar_admin');
         $this->load->view('backend/admin/v_gallery_list', $data);
         $this->load->view('templates/footer_admin');
     }
 
-    // Mengganti nama fungsi 'tambah' menjadi 'tambah_aksi' untuk proses
-    public function tambah() {
-        $data['judul'] = 'Tambah File Gallery';
+    public function tambah()
+    {
+        $data['judul'] = 'Tambah Media Galeri';
         $this->load->view('templates/header_admin', $data);
-        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/sidebar_admin');
         $this->load->view('backend/admin/v_gallery_form', $data);
         $this->load->view('templates/footer_admin');
     }
-    
-    // Fungsi ini khusus untuk menangani proses upload setelah form disubmit
-    public function proses_upload() {
-        $this->form_validation->set_rules('judul_foto', 'Judul File', 'required|trim');
 
-        if ($this->form_validation->run() == FALSE) {
-            $this->tambah(); // Kembali ke form jika judul kosong
-        } else {
-            // ----- PERUBAHAN UTAMA ADA DI SINI -----
+    public function tambah_aksi()
+    {
+        $tipe = $this->input->post('tipe');
+        $data = [
+            'judul_foto' => $this->input->post('judul_foto'),
+            'tipe' => $tipe
+        ];
 
-            // 1. Arahkan ke folder baru untuk video
-            $config['upload_path'] = './assets/videos/'; 
-            
-            // 2. Izinkan tipe file gambar DAN video
-            $config['allowed_types'] = 'jpg|png|jpeg|gif|mp4|mov|avi|wmv';
-            
-            // 3. Naikkan batas ukuran file (contoh: 100MB)
-            $config['max_size'] = '102400'; // 100MB dalam Kilobyte
-            
+        if ($tipe == 'gambar') {
+            $config['upload_path'] = './assets/images/gallery/';
+            $config['allowed_types'] = 'jpg|png|jpeg';
+            $config['max_size'] = 2048;
             $config['encrypt_name'] = TRUE;
+            $this->upload->initialize($config);
 
-            $this->load->library('upload', $config);
-
-            // 'file_gallery' adalah nama dari input file di form Anda
-            if ($this->upload->do_upload('file_gallery')) {
-                $data_gallery = [
-                    'judul_foto' => $this->input->post('judul_foto', true),
-                    'nama_file' => $this->upload->data('file_name'),
-                ];
-                $this->M_Gallery->insert_gallery($data_gallery);
-                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">File berhasil diupload!</div>');
-                redirect('admin/gallery');
+            if ($this->upload->do_upload('nama_file')) {
+                $data['nama_file'] = $this->upload->data('file_name');
             } else {
-                // Jika upload gagal, tampilkan pesan error dari library upload
                 $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">' . $this->upload->display_errors() . '</div>');
                 redirect('admin/gallery/tambah');
+                return;
+            }
+        } elseif ($tipe == 'youtube') {
+            $youtube_id = $this->_get_youtube_id($this->input->post('youtube_link'));
+            if ($youtube_id) {
+                $data['youtube_id'] = $youtube_id;
+                $data['nama_file'] = NULL; // Kosongkan nama file karena ini video
+            } else {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Link YouTube tidak valid! Mohon salin link lengkap dari browser.</div>');
+                redirect('admin/gallery/tambah');
+                return;
             }
         }
+
+        $this->M_Gallery->insert($data);
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Media baru berhasil ditambahkan!</div>');
+        redirect('admin/gallery');
     }
 
-    public function hapus($id) {
-        $file_data = $this->M_Gallery->get_gallery_by_id($id);
-        if ($file_data) {
-            $nama_file = $file_data['nama_file'];
-            $extension = pathinfo($nama_file, PATHINFO_EXTENSION);
-            $image_types = ['jpg', 'png', 'jpeg', 'gif'];
-            $video_types = ['mp4', 'mov', 'avi', 'wmv'];
-
-            // Tentukan path berdasarkan tipe file untuk menghapus file yang benar
-            if (in_array($extension, $image_types)) {
-                $file_path = './assets/images/gallery/' . $nama_file;
-            } elseif (in_array($extension, $video_types)) {
-                $file_path = './assets/videos/' . $nama_file;
-            } else {
-                // Default path jika ada tipe file lain
-                 $file_path = './assets/images/gallery/' . $nama_file;
-            }
-
-            if (file_exists($file_path)) {
-                unlink($file_path);
-            }
-            
-            $this->M_Gallery->delete_gallery($id);
-            $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">File berhasil dihapus!</div>');
+    public function hapus($id)
+    {
+        $item = $this->M_Gallery->get_by_id($id); // Anda perlu membuat fungsi ini di M_Gallery
+        if ($item && $item['tipe'] == 'gambar' && $item['nama_file'] != 'default.jpg') {
+            // Hapus file gambar jika ada
+            @unlink(FCPATH . 'assets/images/gallery/' . $item['nama_file']);
         }
+        $this->M_Gallery->delete($id); // Anda perlu membuat fungsi ini di M_Gallery
+        $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Media berhasil dihapus!</div>');
         redirect('admin/gallery');
     }
 }

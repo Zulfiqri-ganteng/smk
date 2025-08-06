@@ -116,4 +116,5 @@ public function delete_soal_by_ujian_id($id_ujian) {
     $this->db->order_by('nilai', 'DESC');
     return $this->db->get()->result_array();
 }
+
 }
