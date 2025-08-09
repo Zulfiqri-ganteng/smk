@@ -50,6 +50,11 @@ class M_Siswa extends CI_Model
     {
         return $this->db->get_where($this->table, ['id' => $id])->row_array();
     }
+    public function get_kelas_id_by_kode($kode_kelas)
+    {
+        $kelas = $this->db->get_where('kelas', ['kode_kelas' => $kode_kelas])->row_array();
+        return $kelas ? $kelas['id'] : null;
+    }
 
     /**
      * Menyimpan data siswa baru ke database.
@@ -88,5 +93,9 @@ class M_Siswa extends CI_Model
     {
         // Asumsi di tabel 'siswa' ada kolom 'user_id' yang berelasi dengan tabel 'users'
         return $this->db->get_where('siswa', ['user_id' => $user_id])->row_array();
+    }
+    public function get_siswa_by_kelas($kode_kelas)
+    {
+        return $this->db->get_where('siswa', ['kelas' => $kode_kelas])->result_array();
     }
 }

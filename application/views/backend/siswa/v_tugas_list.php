@@ -1,22 +1,30 @@
 <div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800"><?= $judul; ?></h1>
-    
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Daftar Tugas Harian</h6>
-        </div>
-        <div class="card-body">
-            <div class="list-group">
-                <?php foreach($tugas as $t) : ?>
-                    <a href="<?= base_url('siswa/tugas/detail/' . $t['id']); ?>" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1"><?= $t['judul_tugas']; ?></h5>
-                            <small>Deadline: <?= date('d F Y H:i', strtotime($t['deadline'])); ?></small>
+    <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-file-alt me-2"></i><?= $judul; ?></h1>
+
+    <?php if (!empty($ujian_tersedia)): ?>
+        <div class="row">
+            <?php foreach ($ujian_tersedia as $u): ?>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold text-primary"><?= $u['judul_ujian']; ?></h5>
+                            <p class="card-text mb-1"><i class="fas fa-book fa-fw me-2 text-gray-400"></i><strong>Mata Pelajaran:</strong> <?= $u['mapel']; ?></p>
+                            <p class="card-text"><i class="fas fa-clock fa-fw me-2 text-gray-400"></i><strong>Durasi:</strong> <?= $u['waktu_menit']; ?> Menit</p>
+                            <div class="mt-auto">
+                                <a href="<?= base_url('siswa/ujian/kerjakan/' . $u['id']); ?>" class="btn btn-primary">
+                                    <i class="fas fa-play-circle me-1"></i> Mulai Kerjakan
+                                </a>
+                            </div>
                         </div>
-                        <p class="mb-1 text-muted">Klik untuk melihat detail.</p>
-                    </a>
-                <?php endforeach; ?>
-            </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-    </div>
+    <?php else: ?>
+        <div class="text-center mt-5">
+            <i class="fas fa-cloud-moon fa-4x text-gray-400 mb-3"></i>
+            <h4>Tidak Ada Ujian Aktif</h4>
+            <p class="text-muted">Saat ini tidak ada jadwal ujian yang tersedia untuk Anda.</p>
+        </div>
+    <?php endif; ?>
 </div>

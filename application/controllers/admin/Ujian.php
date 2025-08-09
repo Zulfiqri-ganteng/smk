@@ -14,6 +14,13 @@ class Ujian extends CI_Controller
         $this->load->model('M_Ujian');
         $this->load->library('form_validation');
     }
+    //untuk menampilkan ujian aktif kaga
+    public function set_status($id_ujian, $status)
+    {
+        $this->M_Ujian->update_ujian($id_ujian, ['status' => $status]);
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Status ujian berhasil diubah!</div>');
+        redirect('admin/ujian');
+    }
 
     public function index()
     {
@@ -30,6 +37,12 @@ class Ujian extends CI_Controller
     {
         $data['judul'] = 'Tambah Ujian Baru';
         $this->form_validation->set_rules('judul_ujian', 'Judul Ujian', 'required');
+        $this->load->model('M_Kelas');
+        $data['kelas_list'] = $this->M_Kelas->get_all_kelas();
+
+        $this->load->model('M_Mapel'); // Muat model mapel
+        $data['mapel_list'] = $this->M_Mapel->get_all_mapel(); // Ambil daftar mapel
+        $this->load->view('templates/header_admin', $data);
 
         if ($this->form_validation->run() == FALSE) {
             $this->load->view('templates/header_admin', $data);
@@ -55,6 +68,13 @@ class Ujian extends CI_Controller
     {
         $data['judul'] = 'Edit Ujian';
         $data['ujian'] = $this->M_Ujian->get_ujian_by_id($id);
+        $this->load->model('M_Kelas');
+        $data['kelas_list'] = $this->M_Kelas->get_all_kelas();
+
+        $this->load->model('M_Mapel'); // Muat model mapel
+        $data['mapel_list'] = $this->M_Mapel->get_all_mapel(); // Ambil daftar mapel
+
+        $this->load->view('templates/header_admin', $data);
 
         $this->form_validation->set_rules('judul_ujian', 'Judul Ujian', 'required');
 
@@ -102,7 +122,6 @@ class Ujian extends CI_Controller
 
     public function tambah_soal($id_ujian)
     {
-        // Bagian ini masih sama, untuk menampilkan halaman form
         $data['judul'] = 'Tambah Soal Baru';
         $data['id_ujian'] = $id_ujian;
         $this->form_validation->set_rules('pertanyaan', 'Pertanyaan', 'required');
@@ -113,36 +132,16 @@ class Ujian extends CI_Controller
             $this->load->view('backend/admin/v_soal_form', $data);
             $this->load->view('templates/footer_admin');
         } else {
-            // --- INILAH BAGIAN PENTINGNYA ---
-
-            // 1. Siapkan "wadah" untuk nama file gambar. Awalnya kita anggap kosong.
             $nama_gambar = null;
-
-            // 2. KITA CEK: Apakah admin memilih sebuah file untuk diupload?
-            //    Cara mengeceknya adalah melihat apakah nama file di form tidak kosong.
             if (!empty($_FILES['gambar_soal']['name'])) {
-
-                // Jika YA, ada file. Maka kita atur "aturan main" untuk upload.
-                $config['upload_path']   = './assets/images/soal/'; // Folder tujuan
-                $config['allowed_types'] = 'jpg|png|jpeg|gif';      // Hanya izinkan jenis file ini
-                $config['max_size']      = 2048;                    // Ukuran maksimal 2MB
-                $config['encrypt_name']  = TRUE;                    // Buat nama file acak agar tidak bentrok
-                $this->load->library('upload', $config);
-
-                // 3. Lakukan proses upload-nya
-                if ($this->upload->do_upload('gambar_soal')) {
-                    // Jika upload berhasil, kita ambil nama file unik yang baru dibuat
-                    // dan masukkan ke "wadah" yang kita siapkan tadi.
+                if ($this->_do_upload()) {
                     $nama_gambar = $this->upload->data('file_name');
                 } else {
-                    // Jika upload gagal, kasih tahu admin apa masalahnya & jangan lanjutkan proses.
                     $this->session->set_flashdata('message', '<div class="alert alert-danger">' . $this->upload->display_errors() . '</div>');
                     redirect('admin/ujian/tambah_soal/' . $id_ujian);
-                    return; // Proses berhenti di sini.
+                    return;
                 }
             }
-
-            // 4. Siapkan semua data teks dari form
             $data_insert = [
                 'ujian_id'      => $id_ujian,
                 'pertanyaan'    => $this->input->post('pertanyaan'),
@@ -152,14 +151,8 @@ class Ujian extends CI_Controller
                 'opsi_d'        => $this->input->post('opsi_d'),
                 'opsi_e'        => $this->input->post('opsi_e'),
                 'jawaban_benar' => $this->input->post('jawaban_benar'),
+                'gambar_soal'   => $nama_gambar
             ];
-
-            // 5. Terakhir, tambahkan nama gambar ke data yang akan disimpan.
-            //    - Jika tadi ada upload, variabel $nama_gambar akan berisi nama file.
-            //    - Jika tidak ada upload, variabel $nama_gambar isinya akan tetap kosong (null).
-            $data_insert['gambar_soal'] = $nama_gambar;
-
-            // 6. Simpan semua data ini ke database.
             $this->M_Ujian->insert_soal($data_insert);
             $this->session->set_flashdata('message', '<div class="alert alert-success">Soal baru berhasil ditambahkan!</div>');
             redirect('admin/ujian/kelola_soal/' . $id_ujian);
@@ -215,7 +208,6 @@ class Ujian extends CI_Controller
         $data['judul'] = 'Edit Soal';
         $data['soal'] = $this->M_Ujian->get_soal_by_id($id_soal);
         $data['id_ujian'] = $data['soal']['ujian_id'];
-
         $this->form_validation->set_rules('pertanyaan', 'Pertanyaan', 'required');
 
         if ($this->form_validation->run() == FALSE) {
@@ -224,23 +216,12 @@ class Ujian extends CI_Controller
             $this->load->view('backend/admin/v_soal_form', $data);
             $this->load->view('templates/footer_admin');
         } else {
-            $nama_gambar = $data['soal']['gambar_soal']; // Ambil nama gambar yang sudah ada
-
-            // Cek jika ada file gambar baru yang diupload untuk menggantikan yang lama
+            $nama_gambar = $data['soal']['gambar_soal'];
             if (!empty($_FILES['gambar_soal']['name'])) {
-                $config['upload_path']   = './assets/images/soal/';
-                $config['allowed_types'] = 'jpg|png|jpeg|gif';
-                $config['max_size']      = 2048; // 2MB
-                $config['encrypt_name']  = TRUE;
-
-                $this->load->library('upload', $config);
-
-                if ($this->upload->do_upload('gambar_soal')) {
-                    // Hapus gambar lama jika ada
+                if ($this->_do_upload()) {
                     if ($nama_gambar) {
-                        unlink(FCPATH . 'assets/images/soal/' . $nama_gambar);
+                        @unlink(FCPATH . 'assets/images/soal/' . $nama_gambar);
                     }
-                    // Ambil nama gambar baru
                     $nama_gambar = $this->upload->data('file_name');
                 } else {
                     $this->session->set_flashdata('message', '<div class="alert alert-danger">' . $this->upload->display_errors() . '</div>');
@@ -248,16 +229,15 @@ class Ujian extends CI_Controller
                     return;
                 }
             }
-
             $data_update = [
                 'pertanyaan'    => $this->input->post('pertanyaan'),
-                'gambar_soal'   => $nama_gambar, // Simpan nama file gambar baru (atau yang lama jika tidak ada perubahan)
                 'opsi_a'        => $this->input->post('opsi_a'),
                 'opsi_b'        => $this->input->post('opsi_b'),
                 'opsi_c'        => $this->input->post('opsi_c'),
                 'opsi_d'        => $this->input->post('opsi_d'),
                 'opsi_e'        => $this->input->post('opsi_e'),
                 'jawaban_benar' => $this->input->post('jawaban_benar'),
+                'gambar_soal'   => $nama_gambar,
             ];
             $this->M_Ujian->update_soal($id_soal, $data_update);
             $this->session->set_flashdata('message', '<div class="alert alert-success">Soal berhasil diperbarui!</div>');
@@ -491,5 +471,15 @@ class Ujian extends CI_Controller
             $location = base_url('assets/images/soal_konten/' . $data['file_name']);
             echo json_encode(['location' => $location]);
         }
+    }
+    // FUNGSI BANTU UNTUK UPLOAD GAMBAR SOAL
+    private function _do_upload()
+    {
+        $config['upload_path']   = './assets/images/soal/';
+        $config['allowed_types'] = 'jpg|png|jpeg|gif';
+        $config['max_size']      = 2048;
+        $config['encrypt_name']  = TRUE;
+        $this->upload->initialize($config);
+        return $this->upload->do_upload('gambar_soal');
     }
 }
