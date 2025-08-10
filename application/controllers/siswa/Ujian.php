@@ -11,19 +11,24 @@ class Ujian extends CI_Controller
             redirect('auth');
         }
         $this->load->model('M_Ujian');
+        $this->load->model('M_Siswa');
+        $this->load->model('M_Kelas');
     }
 
     public function index()
     {
         $data['judul'] = 'Daftar Ujian Online';
 
-        // Ambil data siswa yang login untuk mengetahui kelasnya
-        $this->load->model('M_Siswa');
-        $siswa = $this->M_Siswa->get_siswa_by_user_id($this->session->userdata('id_user'));
-        $kelas_id = $this->M_Siswa->get_kelas_id_by_kode($siswa['kelas']);
 
-        // Ambil ujian yang aktif dan sesuai dengan kelas siswa
-        $data['ujian_tersedia'] = $this->M_Ujian->get_ujian_aktif_by_kelas($kelas_id);
+        // Ambil profil siswa yang login
+        $siswa = $this->M_Siswa->get_siswa_by_user_id($this->session->userdata('id_user'));
+
+        // Ambil ID kelas dari nama kelas siswa
+        $kelas = $this->M_Kelas->get_kelas_by_kode($siswa['kelas']);
+        $kelas_id = $kelas ? $kelas['id'] : null;
+
+        // Ambil ujian yang aktif dan sesuai kelas siswa
+        $data['ujian_tersedia'] = $this->M_Ujian->get_ujian_aktif();
 
         $this->load->view('templates/header_admin', $data);
         $this->load->view('templates/sidebar_siswa', $data);

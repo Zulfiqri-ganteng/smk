@@ -16,8 +16,10 @@ class Auth extends CI_Controller
         if ($this->session->userdata('level')) {
             redirect(strtolower($this->session->userdata('level')) . '/dashboard');
         }
+
         $this->form_validation->set_rules('username', 'Username', 'trim|required');
         $this->form_validation->set_rules('password', 'Password', 'trim|required');
+
         if ($this->form_validation->run() == FALSE) {
             $data['judul'] = 'Login';
             $this->load->view('templates/header', $data);
@@ -32,7 +34,9 @@ class Auth extends CI_Controller
     {
         $username = $this->input->post('username');
         $password = $this->input->post('password');
+
         $user = $this->M_Auth->get_user($username);
+
         if ($user) {
             if (password_verify($password, trim($user['password']))) {
                 $data_session = [
@@ -42,6 +46,7 @@ class Auth extends CI_Controller
                     'nama_lengkap' => $user['nama_lengkap']
                 ];
                 $this->session->set_userdata($data_session);
+
                 redirect(strtolower($user['level']) . '/dashboard');
             } else {
                 $this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Password salah!</div>');

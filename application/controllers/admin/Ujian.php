@@ -12,21 +12,15 @@ class Ujian extends CI_Controller
             redirect('auth');
         }
         $this->load->model('M_Ujian');
+        $this->load->model('M_Kelas');
         $this->load->library('form_validation');
-    }
-    //untuk menampilkan ujian aktif kaga
-    public function set_status($id_ujian, $status)
-    {
-        $this->M_Ujian->update_ujian($id_ujian, ['status' => $status]);
-        $this->session->set_flashdata('message', '<div class="alert alert-success">Status ujian berhasil diubah!</div>');
-        redirect('admin/ujian');
+        $this->load->library('upload');
     }
 
     public function index()
     {
         $data['judul'] = 'Manajemen Ujian Online';
         $data['ujian'] = $this->M_Ujian->get_all_ujian_admin();
-
         $this->load->view('templates/header_admin', $data);
         $this->load->view('templates/sidebar_admin', $data);
         $this->load->view('backend/admin/v_ujian_list', $data);
@@ -36,13 +30,11 @@ class Ujian extends CI_Controller
     public function tambah()
     {
         $data['judul'] = 'Tambah Ujian Baru';
-        $this->form_validation->set_rules('judul_ujian', 'Judul Ujian', 'required');
-        $this->load->model('M_Kelas');
+        $this->load->model('M_Mapel');
+        $data['mapel_list'] = $this->M_Mapel->get_all_mapel();
         $data['kelas_list'] = $this->M_Kelas->get_all_kelas();
+        $this->form_validation->set_rules('judul_ujian', 'Judul Ujian', 'required');
 
-        $this->load->model('M_Mapel'); // Muat model mapel
-        $data['mapel_list'] = $this->M_Mapel->get_all_mapel(); // Ambil daftar mapel
-        $this->load->view('templates/header_admin', $data);
 
         if ($this->form_validation->run() == FALSE) {
             $this->load->view('templates/header_admin', $data);
@@ -56,7 +48,8 @@ class Ujian extends CI_Controller
                 'tanggal_mulai' => $this->input->post('tanggal_mulai'),
                 'tanggal_selesai' => $this->input->post('tanggal_selesai'),
                 'waktu_menit' => $this->input->post('waktu_menit'),
-                'guru_id' => 1 // Asumsi guru_id = 1 (admin)
+                'kelas_id' => $this->input->post('kelas_id'),
+                'guru_id' => 1 // Asumsi admin sebagai guru default
             ];
             $this->M_Ujian->insert_ujian($data_insert);
             $this->session->set_flashdata('message', '<div class="alert alert-success">Ujian baru berhasil ditambahkan!</div>');
@@ -67,6 +60,8 @@ class Ujian extends CI_Controller
     public function edit($id)
     {
         $data['judul'] = 'Edit Ujian';
+        $this->load->model('M_Mapel');
+        $data['mapel_list'] = $this->M_Mapel->get_all_mapel();
         $data['ujian'] = $this->M_Ujian->get_ujian_by_id($id);
         $this->load->model('M_Kelas');
         $data['kelas_list'] = $this->M_Kelas->get_all_kelas();
@@ -90,6 +85,7 @@ class Ujian extends CI_Controller
                 'tanggal_mulai' => $this->input->post('tanggal_mulai'),
                 'tanggal_selesai' => $this->input->post('tanggal_selesai'),
                 'waktu_menit' => $this->input->post('waktu_menit'),
+                'kelas_id' => $this->input->post('kelas_id'),
             ];
             $this->M_Ujian->update_ujian($id, $data_update);
             $this->session->set_flashdata('message', '<div class="alert alert-success">Data ujian berhasil diperbarui!</div>');
@@ -481,5 +477,11 @@ class Ujian extends CI_Controller
         $config['encrypt_name']  = TRUE;
         $this->upload->initialize($config);
         return $this->upload->do_upload('gambar_soal');
+    }
+    public function set_status($id_ujian, $status)
+    {
+        $this->M_Ujian->update_ujian($id_ujian, ['status' => $status]);
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Status ujian berhasil diubah!</div>');
+        redirect('admin/ujian');
     }
 }

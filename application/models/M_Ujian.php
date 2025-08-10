@@ -7,10 +7,11 @@ class M_Ujian extends CI_Model
     // ======== FUNGSI UNTUK UJIAN ========
     public function get_all_ujian_admin()
     {
-        $this->db->select('ujian_online.*, guru.nama_guru');
+        $this->db->select('ujian_online.*, guru.nama_guru, kelas.kode_kelas');
         $this->db->from('ujian_online');
         $this->db->join('guru', 'guru.id = ujian_online.guru_id', 'left');
-        $this->db->order_by('tanggal_mulai', 'DESC');
+        $this->db->join('kelas', 'kelas.id = ujian_online.kelas_id', 'left'); // Tambahkan join ini
+        $this->db->order_by('ujian_online.id', 'DESC');
         return $this->db->get()->result_array();
     }
 
@@ -75,6 +76,7 @@ class M_Ujian extends CI_Model
         $this->db->where('kelas_id', $kelas_id);
         $this->db->where('tanggal_mulai <=', $today);
         $this->db->where('tanggal_selesai >=', $today);
+        $this->db->where('status', 'aktif'); // Tambahkan pengecekan ini
         return $this->db->get('ujian_online')->result_array();
     }
 

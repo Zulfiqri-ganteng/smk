@@ -15,6 +15,7 @@ class Dashboard extends CI_Controller
     public function index()
     {
         $data['judul'] = 'Dashboard Siswa';
+
         $this->load->view('templates/header_admin', $data);
         $this->load->view('templates/sidebar_siswa', $data);
         $this->load->view('backend/siswa/v_dashboard', $data);

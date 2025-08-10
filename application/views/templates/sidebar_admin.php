@@ -65,6 +65,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item" href="<?= base_url('admin/ujian'); ?>">Manajemen Ujian</a>
                 <a class="collapse-item" href="<?= base_url('admin/ppdb'); ?>">Manajemen PPDB</a>
+                <a class="collapse-item" href="<?= base_url('admin/tugas'); ?>"><i class="fas fa-book fa-fw me-2"></i> Tugas Harian</a>
             </div>
         </div>
     </li>
