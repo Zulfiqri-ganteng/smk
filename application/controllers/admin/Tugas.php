@@ -51,15 +51,71 @@ class Tugas extends CI_Controller
         }
     }
 
-    public function edit($id)
-    {
-        // ... (fungsi edit bisa ditambahkan di sini) ...
-    }
 
     public function hapus($id)
     {
         $this->M_Tugas->delete_tugas($id);
         $this->session->set_flashdata('message', '<div class="alert alert-success">Tugas berhasil dihapus!</div>');
+        redirect('admin/tugas');
+    }
+
+
+    public function penilaian($id_tugas)
+    {
+        $data['judul'] = 'Penilaian Tugas';
+        $data['tugas'] = $this->M_Tugas->get_tugas_by_id($id_tugas);
+        $data['jawaban_siswa'] = $this->M_Tugas->get_jawaban_by_tugas_id($id_tugas);
+
+        $this->load->view('templates/header_admin', $data);
+        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('backend/admin/v_tugas_penilaian', $data); // Buat view ini
+        $this->load->view('templates/footer_admin');
+    }
+
+    public function simpan_nilai($id_jawaban)
+    {
+        $id_tugas = $this->input->post('id_tugas');
+        $data_update = [
+            'nilai'         => $this->input->post('nilai'),
+            'komentar_guru' => $this->input->post('komentar_guru'),
+            'status'        => 'Sudah Dinilai'
+        ];
+
+        $this->M_Tugas->update_jawaban($id_jawaban, $data_update);
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Nilai berhasil disimpan!</div>');
+        redirect('admin/tugas/penilaian/' . $id_tugas);
+    }
+    // Tambahkan DUA fungsi ini di dalam class Tugas
+
+    public function edit($id)
+    {
+        $data['judul'] = 'Edit Tugas';
+
+        $data['tugas'] = $this->M_Tugas->get_tugas_by_id($id);
+        $data['kelas_list'] = $this->M_Kelas->get_all_kelas();
+
+        $this->form_validation->set_rules('judul_tugas', 'Judul Tugas', 'required');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->load->view('templates/header_admin', $data);
+            $this->load->view('templates/sidebar_admin', $data);
+            $this->load->view('backend/admin/v_tugas_form', $data);
+            $this->load->view('templates/footer_admin');
+        } else {
+            $this->update_aksi($id);
+        }
+    }
+
+    public function update_aksi($id)
+    {
+        $data_update = [
+            'judul_tugas'   => $this->input->post('judul_tugas'),
+            'deskripsi'     => $this->input->post('deskripsi'),
+            'kelas_tujuan'  => $this->input->post('kelas_tujuan'),
+            'deadline'      => $this->input->post('deadline'),
+        ];
+        $this->M_Tugas->update_tugas($id, $data_update);
+        $this->session->set_flashdata('message', '<div class="alert alert-success">Tugas berhasil diperbarui!</div>');
         redirect('admin/tugas');
     }
 }

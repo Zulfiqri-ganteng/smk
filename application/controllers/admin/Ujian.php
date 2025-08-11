@@ -30,6 +30,7 @@ class Ujian extends CI_Controller
     public function tambah()
     {
         $data['judul'] = 'Tambah Ujian Baru';
+        
         $this->load->model('M_Mapel');
         $data['mapel_list'] = $this->M_Mapel->get_all_mapel();
         $data['kelas_list'] = $this->M_Kelas->get_all_kelas();

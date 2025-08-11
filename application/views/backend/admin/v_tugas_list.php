@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered" width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th>Judul Tugas</th>
@@ -20,17 +20,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($tugas_list as $t): ?>
+                        <?php if (!empty($tugas_list)): foreach ($tugas_list as $t): ?>
+                                <tr>
+                                    <td><?= $t['judul_tugas']; ?></td>
+                                    <td><span class="badge bg-info text-white"><?= $t['kelas_tujuan']; ?></span></td>
+                                    <td><?= date('d M Y, H:i', strtotime($t['deadline'])); ?> WIB</td>
+                                    <td>
+                                        <a href="<?= base_url('admin/tugas/penilaian/' . $t['id']); ?>" class="btn btn-info btn-sm" title="Lihat & Nilai Tugas">
+                                            <i class="fas fa-check-double"></i> Nilai
+                                            a>
+                                            <a href="#" class="btn btn-warning btn-sm" title="Edit Tugas">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="<?= base_url('admin/tugas/hapus/' . $t['id']); ?>" class="btn btn-danger btn-sm" title="Hapus Tugas" onclick="return confirm('Yakin ingin menghapus tugas ini?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach;
+                        else: ?>
                             <tr>
-                                <td><?= $t['judul_tugas']; ?></td>
-                                <td><?= $t['kelas_tujuan']; ?></td>
-                                <td><?= date('d M Y, H:i', strtotime($t['deadline'])); ?></td>
-                                <td>
-                                    <a href="#" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                    <a href="<?= base_url('admin/tugas/hapus/' . $t['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin?')"><i class="fas fa-trash"></i></a>
-                                </td>
+                                <td colspan="4" class="text-center">Belum ada tugas yang diberikan.</td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
